@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './App.css';
+import Register from './components/Register';
+import Login from './components/Login';
+import Sessions from './components/Sessions';
 
 function App() {
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    fetch('/api/test')
-      .then(response => response.json())
-      .then(data => setMessage(data.message));
-  }, []);
-
   return (
     <div className="App">
       <header className="App-header">
-        <p>{message}</p>
+        <h1>Timefinder</h1>
+        <Register />
+        <Login />
+        <Sessions />
       </header>
     </div>
   );
