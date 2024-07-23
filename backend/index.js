@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const User = require('./models/User');
+const multer = require('multer');
+const ical = require('ical');
+const moment = require('moment');
 require('dotenv').config();
 
 const app = express();
@@ -10,76 +10,98 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+const upload = multer({ dest: 'uploads/' });
 
-// Registration route
-app.post('/api/register', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const user = new User({ username, password });
-    await user.save();
-    res.status(201).send({ message: 'User registered successfully' });
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-});
+app.post('/api/compare', upload.array('files'), (req, res) => {
+  const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
+  const parsedDaysOfWeek = JSON.parse(daysOfWeek);
+  const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
+  const eventDuration = parseInt(duration, 10);
+  const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
 
-// Login route
-app.post('/api/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(400).send({ error: 'Invalid credentials' });
+  // Parse calendar files
+  const events = [];
+  req.files.forEach(file => {
+    const data = ical.parseFile(file.path);
+    for (let k in data) {
+      if (data.hasOwnProperty(k)) {
+        const event = data[k];
+        if (event.type === 'VEVENT') {
+          events.push(event);
+        }
+      }
     }
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).send({ error: 'Invalid credentials' });
+  });
+
+  // Create a map of busy times
+  const busyTimes = {};
+
+  events.forEach(event => {
+    const eventStart = moment(event.start);
+    const eventEnd = moment(event.end);
+    const day = eventStart.format('YYYY-MM-DD');
+
+    if (!busyTimes[day]) {
+      busyTimes[day] = [];
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.send({ token });
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-});
 
-const Session = require('./models/Session');
+    busyTimes[day].push({ start: eventStart, end: eventEnd });
+  });
 
-// Middleware to authenticate token
-const authenticateToken = (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).send({ error: 'Unauthorized' });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    next();
-  } catch (error) {
-    res.status(401).send({ error: 'Unauthorized' });
-  }
-};
+  // Check for common available slots
+  const start = moment(startDate);
+  const end = moment(endDate);
+  const availableTimes = {};
 
-// Create session route
-app.post('/api/sessions', authenticateToken, async (req, res) => {
-  try {
-    const { name } = req.body;
-    const session = new Session({ name, createdBy: req.userId });
-    await session.save();
-    res.status(201).send(session);
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-});
+  for (let m = moment(start); m.isSameOrBefore(end); m.add(1, 'days')) {
+    if (parsedDaysOfWeek[m.format('dddd')]) {
+      const day = m.format('YYYY-MM-DD');
+      if (!busyTimes[day]) {
+        busyTimes[day] = [];
+      }
 
-// Get sessions route
-app.get('/api/sessions', authenticateToken, async (req, res) => {
-  try {
-    const sessions = await Session.find({ createdBy: req.userId });
-    res.send(sessions);
-  } catch (error) {
-    res.status(400).send({ error: error.message });
+      const dailySuggestions = [];
+
+      timeslotRanges.forEach(range => {
+        const [startTime, endTime] = range;
+        const slotStart = moment(day + 'T' + startTime);
+        const slotEnd = moment(day + 'T' + endTime);
+        const durationInMs = eventDuration * 60 * 1000;
+
+        for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'minutes')) {
+          const slotEnd = slot.clone().add(eventDuration, 'minutes');
+
+          // Ensure slotEnd does not exceed the timeslot end time
+          if (slotEnd.isAfter(moment(day + 'T' + endTime))) break;
+
+          let isAvailable = true;
+          for (let i = 0; i < busyTimes[day].length; i++) {
+            const busyStart = busyTimes[day][i].start;
+            const busyEnd = busyTimes[day][i].end;
+
+            if (slot.isBefore(busyEnd) && slotEnd.isAfter(busyStart)) {
+              isAvailable = false;
+              break;
+            }
+          }
+
+          if (isAvailable) {
+            if (dailySuggestions.length < maxSuggestionsPerDay) {
+              dailySuggestions.push({ start: slot.format(), end: slotEnd.format() });
+            } else {
+              break;
+            }
+          }
+        }
+      });
+
+      if (dailySuggestions.length > 0) {
+        availableTimes[day] = dailySuggestions;
+      }
+    }
   }
+
+  res.send(availableTimes);
 });
 
 app.listen(port, () => {
