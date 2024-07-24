@@ -96,17 +96,17 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
         const slotEnd = moment(day + 'T' + endTime);
 
         for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {
-          const slotEnd = slot.clone().add(eventDuration, 'milliseconds');
+          const suggestionEnd = slot.clone().add(eventDuration, 'milliseconds');
 
           // Ensure slotEnd does not exceed the timeslot end time
-          if (slotEnd.isAfter(moment(day + 'T' + endTime))) break;
+          if (suggestionEnd.isAfter(slotEnd)) break;
 
           let isAvailable = true;
           for (let i = 0; i < busyTimes[day].length; i++) {
             const busyStart = busyTimes[day][i].start;
             const busyEnd = busyTimes[day][i].end;
 
-            if (slot.isBefore(busyEnd) && slotEnd.isAfter(busyStart)) {
+            if (slot.isBefore(busyEnd) && suggestionEnd.isAfter(busyStart)) {
               isAvailable = false;
               break;
             }
@@ -114,7 +114,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
 
           if (isAvailable) {
             if (dailySuggestions.length < maxSuggestionsPerDay) {
-              dailySuggestions.push({ start: slot.format(), end: slotEnd.format() });
+              dailySuggestions.push({ start: slot.format(), end: suggestionEnd.format() });
             } else {
               break;
             }

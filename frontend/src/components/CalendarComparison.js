@@ -127,7 +127,16 @@ const CalendarComparison = () => {
                   </div>
                 </div>
                 <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-                  {loading ? 'Loading...' : 'Compare Calendars'}
+                  {loading ? (
+                    <>
+                      <span>Loading...</span>
+                      <div className="spinner-border spinner-border-sm ms-2" role="status">
+                        <span className="sr-only">Loading...</span>
+                      </div>
+                    </>
+                  ) : (
+                    'Compare Calendars'
+                  )}
                 </button>
               </form>
             </div>
@@ -147,7 +156,7 @@ const CalendarComparison = () => {
                   <h3>Common Available Times</h3>
                   <ul className="list-group">
                     {Object.entries(result).map(([date, times]) => (
-                      <li key={date} className="list-group-item">
+                      <li key={date} className="list-group-item text-left"> {/* Align text to the left */}
                         <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
                         <ul>
                           {times.map((time, index) => (
