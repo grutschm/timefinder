@@ -21,6 +21,7 @@ const CalendarComparison = () => {
   const [duration, setDuration] = useState('1');
   const [maxSuggestions, setMaxSuggestions] = useState('1');
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleFileChange = (e) => {
     setFiles(e.target.files);
@@ -33,6 +34,7 @@ const CalendarComparison = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading state to true
     const formData = new FormData();
     Array.from(files).forEach((file) => {
       formData.append('files', file);
@@ -53,6 +55,8 @@ const CalendarComparison = () => {
       setResult(response.data);
     } catch (error) {
       console.error('Error comparing calendars', error);
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -122,30 +126,40 @@ const CalendarComparison = () => {
                     </select>
                   </div>
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Compare Calendars</button>
+                <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                  {loading ? 'Loading...' : 'Compare Calendars'}
+                </button>
               </form>
             </div>
           </div>
         </div>
         <div className="col-md-6">
-          {result && (
-            <div className="card result-card">
-              <div className="card-body">
-                <h3>Common Available Times</h3>
-                <ul className="list-group">
-                  {Object.entries(result).map(([date, times]) => (
-                    <li key={date} className="list-group-item">
-                      <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
-                      <ul>
-                        {times.map((time, index) => (
-                          <li key={index}>{moment(time.start).format('dddd, DD. MMMM HH:mm')}</li>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
+          {loading ? (
+            <div className="text-center">
+              <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
               </div>
             </div>
+          ) : (
+            result && (
+              <div className="card result-card">
+                <div className="card-body">
+                  <h3>Common Available Times</h3>
+                  <ul className="list-group">
+                    {Object.entries(result).map(([date, times]) => (
+                      <li key={date} className="list-group-item">
+                        <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
+                        <ul>
+                          {times.map((time, index) => (
+                            <li key={index}>{moment(time.start).format('dddd, DD. MMMM HH:mm')}</li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )
           )}
         </div>
       </div>
