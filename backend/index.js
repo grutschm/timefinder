@@ -3,10 +3,19 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const ical = require('ical');
 const moment = require('moment');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+const mongoURI = process.env.MONGODB_URI;
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch((err) => console.log(err));
 
 app.use(bodyParser.json());
 
