@@ -3,14 +3,43 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const ical = require('ical');
 const moment = require('moment');
-const cors = require('cors');  // Add this line
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Define allowed origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://your-frontend-url.azurestaticapps.net'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
+// Set up CORS with specific origins
+app.use(cors(corsOptions));
+
+// Log requests to verify CORS
+app.use((req, res, next) => {
+  console.log(`Request from origin: ${req.headers.origin}`);
+  console.log(`Request method: ${req.method}`);
+  console.log(`Request path: ${req.path}`);
+  next();
+});
+
 app.use(bodyParser.json());
-app.use(cors());  // Add this line
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -21,6 +50,8 @@ app.get('/', (req, res) => {
 
 // Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Explicitly set CORS header
+
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
