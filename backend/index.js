@@ -4,6 +4,7 @@ const multer = require('multer');
 const ical = require('ical');
 const moment = require('moment');
 const mongoose = require('mongoose');
+const cors = require('cors'); 
 require('dotenv').config();
 
 const app = express();
@@ -18,6 +19,7 @@ mongoose.connect(mongoURI, {
 .catch((err) => console.log(err));
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -26,6 +28,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Timefinder Backend API');
 });
 
+// Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);

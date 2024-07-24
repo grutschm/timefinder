@@ -28,6 +28,10 @@ const CalendarComparison = () => {
     setDaysOfWeek({ ...daysOfWeek, [name]: checked });
   };
 
+  const apiBaseUrl = process.env.NODE_ENV === 'production' 
+  ? 'https://timefinder-backend.azurewebsites.net' 
+  : 'http://localhost:5000';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -40,9 +44,9 @@ const CalendarComparison = () => {
     formData.append('timeslots', timeslots);
     formData.append('duration', duration);
     formData.append('maxSuggestions', maxSuggestions);
-
+  
     try {
-      const response = await axios.post('/api/compare', formData, {
+      const response = await axios.post(`${apiBaseUrl}/api/compare`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -53,6 +57,7 @@ const CalendarComparison = () => {
     }
   };
 
+  
   return (
     <div>
       <h2>Calendar Comparison</h2>
