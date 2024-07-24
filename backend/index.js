@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 // Define allowed origins
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://your-frontend-url.azurestaticapps.net'
+  'https://timefinder-frontend.azurestaticapps.net'
 ];
 
 const corsOptions = {
@@ -36,6 +36,9 @@ app.use((req, res, next) => {
   console.log(`Request from origin: ${req.headers.origin}`);
   console.log(`Request method: ${req.method}`);
   console.log(`Request path: ${req.path}`);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   next();
 });
 
@@ -50,8 +53,6 @@ app.get('/', (req, res) => {
 
 // Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Explicitly set CORS header
-
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
