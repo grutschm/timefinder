@@ -81,7 +81,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   const end = moment.utc(endDate); // Ensure UTC
   const availableTimes = {};
 
-  for (let m = moment(start); m.isSameOrBefore(end); m.add(1, 'days')) {
+  for (let m = moment.utc(start); m.isSameOrBefore(end); m.add(1, 'days')) {
     if (parsedDaysOfWeek[m.format('dddd')]) {
       const day = m.format('YYYY-MM-DD');
       if (!busyTimes[day]) {
@@ -94,8 +94,8 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
         const [startTime, endTime] = range;
         const localSlotStart = moment(day + 'T' + startTime); // Local time
         const localSlotEnd = moment(day + 'T' + endTime); // Local time
-        const slotStart = moment.utc(localSlotStart); // Convert to UTC
-        const slotEnd = moment.utc(localSlotEnd); // Convert to UTC
+        const slotStart = localSlotStart.utc(); // Convert to UTC
+        const slotEnd = localSlotEnd.utc(); // Convert to UTC
 
         for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {
           const suggestionEnd = slot.clone().add(eventDuration, 'milliseconds');
