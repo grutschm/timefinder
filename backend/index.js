@@ -11,7 +11,6 @@ const port = process.env.PORT || 5000;
 
 // Define allowed origins
 const allowedOrigins = [
-  'http://localhost:3000',
   'https://timefinder-frontend.azurestaticapps.net'
 ];
 
@@ -36,7 +35,7 @@ app.use((req, res, next) => {
   console.log(`Request from origin: ${req.headers.origin}`);
   console.log(`Request method: ${req.method}`);
   console.log(`Request path: ${req.path}`);
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://timefinder-frontend.azurestaticapps.net');
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   next();

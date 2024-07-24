@@ -64,21 +64,21 @@ const CalendarComparison = () => {
               <h2 className="card-title mb-4">Calendar Comparison</h2>
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label">Upload Calendar Files</label>
+                  <label className="form-label">Upload Calendar Files:</label>
                   <input type="file" multiple onChange={handleFileChange} className="form-control" />
                 </div>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Start Date</label>
+                    <label className="form-label">Start Date:</label>
                     <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-control" />
                   </div>
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">End Date</label>
+                    <label className="form-label">End Date:</label>
                     <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="form-control" />
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Select Days of the Week</label>
+                  <label className="form-label">Select Days of the Week:</label>
                   <div className="row">
                     {Object.keys(daysOfWeek).map((day) => (
                       <div key={day} className="col-md-3 mb-3">
@@ -100,12 +100,12 @@ const CalendarComparison = () => {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Timeslots to be considered</label>
-                  <input type="text" value={timeslots} onChange={(e) => setTimeslots(e.target.value)} className="form-control" placeholder="09:00-11:00, 13:00-15:00" />
+                  <label className="form-label">Timeslots:</label>
+                  <input type="text" value={timeslots} onChange={(e) => setTimeslots(e.target.value)} className="form-control" placeholder="e.g., 09:00-11:00, 13:00-15:00" />
                 </div>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Event Duration (hours)</label>
+                    <label className="form-label">Event Duration (hours):</label>
                     <select value={duration} onChange={(e) => setDuration(e.target.value)} className="form-control">
                       {[...Array(23).keys()].map(n => (
                         <option key={n + 1} value={n + 1}>{n + 1}</option>
@@ -113,7 +113,7 @@ const CalendarComparison = () => {
                     </select>
                   </div>
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Max Suggestions Per Day</label>
+                    <label className="form-label">Max Suggestions Per Day:</label>
                     <select value={maxSuggestions} onChange={(e) => setMaxSuggestions(e.target.value)} className="form-control">
                       {[1, 2, 3].map(n => (
                         <option key={n} value={n}>{n}</option>
