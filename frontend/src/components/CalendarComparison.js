@@ -149,7 +149,7 @@ const CalendarComparison = () => {
                       <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
                       <ul>
                         {times.map((time, index) => (
-                          <li key={index}>{moment(time.start).format('dddd, DD. MMMM HH:mm')}</li>
+                          <li key={index}>{moment.utc(time.start).local().format('dddd, DD. MMMM HH:mm')}</li> // Convert UTC to local time
                         ))}
                       </ul>
                     </li>

@@ -65,8 +65,8 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   const busyTimes = {};
 
   events.forEach(event => {
-    const eventStart = moment(event.start);
-    const eventEnd = moment(event.end);
+    const eventStart = moment.utc(event.start); // Ensure UTC
+    const eventEnd = moment.utc(event.end); // Ensure UTC
     const day = eventStart.format('YYYY-MM-DD');
 
     if (!busyTimes[day]) {
@@ -77,8 +77,8 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   });
 
   // Check for common available slots
-  const start = moment(startDate);
-  const end = moment(endDate);
+  const start = moment.utc(startDate); // Ensure UTC
+  const end = moment.utc(endDate); // Ensure UTC
   const availableTimes = {};
 
   for (let m = moment(start); m.isSameOrBefore(end); m.add(1, 'days')) {
@@ -92,8 +92,8 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
 
       timeslotRanges.forEach(range => {
         const [startTime, endTime] = range;
-        const slotStart = moment(day + 'T' + startTime);
-        const slotEnd = moment(day + 'T' + endTime);
+        const slotStart = moment.utc(day + 'T' + startTime); // Ensure UTC
+        const slotEnd = moment.utc(day + 'T' + endTime); // Ensure UTC
 
         for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {
           const suggestionEnd = slot.clone().add(eventDuration, 'milliseconds');
