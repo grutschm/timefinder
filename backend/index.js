@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const ical = require('ical');
 const moment = require('moment');
+const momentTz = require('moment-timezone');  // Import moment-timezone
 const cors = require('cors');
 require('dotenv').config();
 
@@ -42,7 +43,8 @@ app.get('/', (req, res) => {
 // Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
-  console.log("Form input received - Start Date:", startDate, "End Date:", endDate, "Timeslots:", timeslots);
+  const timezone = req.body.timezone || 'UTC';  // Get the timezone from the request, default to 'UTC'
+  console.log("Form input received - Start Date:", startDate, "End Date:", endDate, "Timeslots:", timeslots, "Timezone:", timezone);
 
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
@@ -88,7 +90,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
 
   const availableTimes = {};
 
-  for (let m = moment(start); m.isSameOrBefore(end); m.add(1, 'days')) {
+  for (let m = moment.utc(start); m.isSameOrBefore(end); m.add(1, 'days')) {
     if (parsedDaysOfWeek[m.format('dddd')]) {
       const day = m.format('YYYY-MM-DD');
       if (!busyTimes[day]) {
@@ -99,12 +101,12 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
 
       timeslotRanges.forEach(range => {
         const [startTime, endTime] = range;
-        const localSlotStart = moment(day + 'T' + startTime); // Local time
-        const localSlotEnd = moment(day + 'T' + endTime); // Local time
+        const localSlotStart = moment.tz(day + 'T' + startTime, timezone); // Local time with timezone
+        const localSlotEnd = moment.tz(day + 'T' + endTime, timezone); // Local time with timezone
         console.log("Local Timeslot - Start:", localSlotStart.format(), "End:", localSlotEnd.format());
         
-        const slotStart = moment.utc(localSlotStart); // Convert to UTC
-        const slotEnd = moment.utc(localSlotEnd); // Convert to UTC
+        const slotStart = localSlotStart.utc(); // Convert to UTC
+        const slotEnd = localSlotEnd.utc(); // Convert to UTC
         console.log("Converted Timeslot (UTC) - Start:", slotStart.format(), "End:", slotEnd.format());
 
         for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {

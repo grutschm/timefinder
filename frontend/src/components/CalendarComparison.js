@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CalendarComparison.css';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 const CalendarComparison = () => {
   const [files, setFiles] = useState([]);
@@ -22,6 +22,8 @@ const CalendarComparison = () => {
   const [maxSuggestions, setMaxSuggestions] = useState('1');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false); // Add loading state
+
+  const timezone = moment.tz.guess(); // Detect user's local timezone
 
   const handleFileChange = (e) => {
     setFiles(e.target.files);
@@ -45,6 +47,7 @@ const CalendarComparison = () => {
     formData.append('timeslots', timeslots);
     formData.append('duration', duration);
     formData.append('maxSuggestions', maxSuggestions);
+    formData.append('timezone', timezone); // Append timezone information
 
     try {
       console.log("Submitting form with data:", formData);
