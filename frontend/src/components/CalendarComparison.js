@@ -146,7 +146,7 @@ const CalendarComparison = () => {
                 <ul className="list-group text-left"> {/* Align text to the left */}
                   {Object.entries(result).map(([date, times]) => (
                     <li key={date} className="list-group-item">
-                      <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
+                      <strong>{moment.utc(date).local().format('dddd, DD. MMMM')}</strong>
                       <ul>
                         {times.map((time, index) => (
                           <li key={index}>{moment.utc(time.start).local().format('dddd, DD. MMMM HH:mm')}</li> // Convert UTC to local time
