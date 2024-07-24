@@ -30,17 +30,6 @@ const corsOptions = {
 // Set up CORS with specific origins
 app.use(cors(corsOptions));
 
-// Log requests to verify CORS
-app.use((req, res, next) => {
-  console.log(`Request from origin: ${req.headers.origin}`);
-  console.log(`Request method: ${req.method}`);
-  console.log(`Request path: ${req.path}`);
-  res.header('Access-Control-Allow-Origin', 'https://timefinder-frontend.azurestaticapps.net');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  next();
-});
-
 app.use(bodyParser.json());
 
 const upload = multer({ dest: 'uploads/' });
@@ -55,7 +44,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
-  const eventDuration = parseInt(duration, 10);
+  const eventDuration = parseInt(duration, 10) * 60 * 60 * 1000;  // Convert hours to milliseconds
   const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
 
   // Parse calendar files
@@ -105,10 +94,9 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
         const [startTime, endTime] = range;
         const slotStart = moment(day + 'T' + startTime);
         const slotEnd = moment(day + 'T' + endTime);
-        const durationInMs = eventDuration * 60 * 1000;
 
-        for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'minutes')) {
-          const slotEnd = slot.clone().add(eventDuration, 'minutes');
+        for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {
+          const slotEnd = slot.clone().add(eventDuration, 'milliseconds');
 
           // Ensure slotEnd does not exceed the timeslot end time
           if (slotEnd.isAfter(moment(day + 'T' + endTime))) break;
