@@ -79,3 +79,9 @@ pre {
   color: #131842;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.list-group-item {
+  background-color: #ECCEA1;
+  color: #131842;
+  font-size: 0.875rem;  /* Match other font sizes */
+}

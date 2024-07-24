@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CalendarComparison.css';
+import moment from 'moment';
 
 const CalendarComparison = () => {
   const [files, setFiles] = useState([]);
@@ -134,10 +135,10 @@ const CalendarComparison = () => {
                 <ul className="list-group">
                   {Object.entries(result).map(([date, times]) => (
                     <li key={date} className="list-group-item">
-                      <strong>{date}</strong>
+                      <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
                       <ul>
                         {times.map((time, index) => (
-                          <li key={index}>{time.start} - {time.end}</li>
+                          <li key={index}>{moment(time.start).format('dddd, DD. MMMM HH:mm')}</li>
                         ))}
                       </ul>
                     </li>
