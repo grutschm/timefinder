@@ -44,7 +44,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
-  const eventDuration = parseInt(duration, 10) * 60 * 60 * 1000;  // Convert hours to milliseconds
+  const eventDuration = parseInt(duration, 10) * 60 * 1000;  // Convert hours to milliseconds
   const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
 
   // Parse calendar files

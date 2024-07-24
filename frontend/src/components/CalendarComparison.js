@@ -18,7 +18,7 @@ const CalendarComparison = () => {
     Sunday: false
   });
   const [timeslots, setTimeslots] = useState('');
-  const [duration, setDuration] = useState('1');
+  const [duration, setDuration] = useState('60');
   const [maxSuggestions, setMaxSuggestions] = useState('1');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false); // Add loading state
@@ -110,9 +110,9 @@ const CalendarComparison = () => {
                 </div>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Event Duration (hours):</label>
+                    <label className="form-label">Event Duration (minutes):</label>
                     <select value={duration} onChange={(e) => setDuration(e.target.value)} className="form-control">
-                      {[...Array(23).keys()].map(n => (
+                      {[...Array(23 * 60).keys()].map(n => (
                         <option key={n + 1} value={n + 1}>{n + 1}</option>
                       ))}
                     </select>
@@ -143,32 +143,24 @@ const CalendarComparison = () => {
           </div>
         </div>
         <div className="col-md-6">
-          {loading ? (
-            <div className="text-center">
-              <div className="spinner-border" role="status">
-                <span className="sr-only">Loading...</span>
+          {result && (
+            <div className="card result-card">
+              <div className="card-body">
+                <h3>Common Available Times</h3>
+                <ul className="list-group text-left"> {/* Align text to the left */}
+                  {Object.entries(result).map(([date, times]) => (
+                    <li key={date} className="list-group-item">
+                      <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
+                      <ul>
+                        {times.map((time, index) => (
+                          <li key={index}>{moment(time.start).format('dddd, DD. MMMM HH:mm')}</li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          ) : (
-            result && (
-              <div className="card result-card">
-                <div className="card-body">
-                  <h3>Common Available Times</h3>
-                  <ul className="list-group">
-                    {Object.entries(result).map(([date, times]) => (
-                      <li key={date} className="list-group-item text-left"> {/* Align text to the left */}
-                        <strong>{moment(date).format('dddd, DD. MMMM')}</strong>
-                        <ul>
-                          {times.map((time, index) => (
-                            <li key={index}>{moment(time.start).format('dddd, DD. MMMM HH:mm')}</li>
-                          ))}
-                        </ul>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )
           )}
         </div>
       </div>
