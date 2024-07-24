@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CalendarComparison = () => {
   const [files, setFiles] = useState([]);
@@ -28,10 +29,6 @@ const CalendarComparison = () => {
     setDaysOfWeek({ ...daysOfWeek, [name]: checked });
   };
 
-  const apiBaseUrl = process.env.NODE_ENV === 'production' 
-  ? 'https://timefinder-backend.azurewebsites.net' 
-  : 'http://localhost:5000';
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -44,9 +41,9 @@ const CalendarComparison = () => {
     formData.append('timeslots', timeslots);
     formData.append('duration', duration);
     formData.append('maxSuggestions', maxSuggestions);
-  
+
     try {
-      const response = await axios.post(`${apiBaseUrl}/api/compare`, formData, {
+      const response = await axios.post('https://timefinder-backend.azurewebsites.net/api/compare', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -57,55 +54,55 @@ const CalendarComparison = () => {
     }
   };
 
-  
   return (
-    <div>
-      <h2>Calendar Comparison</h2>
+    <div className="container mt-5">
+      <h2 className="mb-4">Calendar Comparison</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Upload Calendar Files:</label>
-          <input type="file" multiple onChange={handleFileChange} />
+        <div className="mb-3">
+          <label className="form-label">Upload Calendar Files:</label>
+          <input type="file" multiple onChange={handleFileChange} className="form-control" />
         </div>
-        <div>
-          <label>Start Date:</label>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        <div className="mb-3">
+          <label className="form-label">Start Date:</label>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-control" />
         </div>
-        <div>
-          <label>End Date:</label>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+        <div className="mb-3">
+          <label className="form-label">End Date:</label>
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="form-control" />
         </div>
-        <div>
-          <label>Select Days of the Week:</label>
+        <div className="mb-3">
+          <label className="form-label">Select Days of the Week:</label>
           {Object.keys(daysOfWeek).map((day) => (
-            <div key={day}>
-              <label>
+            <div key={day} className="form-check">
+              <label className="form-check-label">
                 <input
                   type="checkbox"
                   name={day}
                   checked={daysOfWeek[day]}
                   onChange={handleDayChange}
+                  className="form-check-input"
                 />
                 {day}
               </label>
             </div>
           ))}
         </div>
-        <div>
-          <label>Timeslots (e.g., 09:00-11:00, 13:00-15:00):</label>
-          <input type="text" value={timeslots} onChange={(e) => setTimeslots(e.target.value)} />
+        <div className="mb-3">
+          <label className="form-label">Timeslots (e.g., 09:00-11:00, 13:00-15:00):</label>
+          <input type="text" value={timeslots} onChange={(e) => setTimeslots(e.target.value)} className="form-control" />
         </div>
-        <div>
-          <label>Event Duration (minutes):</label>
-          <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} />
+        <div className="mb-3">
+          <label className="form-label">Event Duration (minutes):</label>
+          <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} className="form-control" />
         </div>
-        <div>
-          <label>Max Suggestions Per Day:</label>
-          <input type="number" value={maxSuggestions} onChange={(e) => setMaxSuggestions(e.target.value)} />
+        <div className="mb-3">
+          <label className="form-label">Max Suggestions Per Day:</label>
+          <input type="number" value={maxSuggestions} onChange={(e) => setMaxSuggestions(e.target.value)} className="form-control" />
         </div>
-        <button type="submit">Compare Calendars</button>
+        <button type="submit" className="btn btn-primary">Compare Calendars</button>
       </form>
       {result && (
-        <div>
+        <div className="mt-4">
           <h3>Common Available Times</h3>
           <pre>{JSON.stringify(result, null, 2)}</pre>
         </div>
