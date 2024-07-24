@@ -18,7 +18,7 @@ const CalendarComparison = () => {
     Sunday: false
   });
   const [timeslots, setTimeslots] = useState('');
-  const [duration, setDuration] = useState('60');
+  const [duration, setDuration] = useState('180'); // Default to 3 hours (180 minutes)
   const [maxSuggestions, setMaxSuggestions] = useState('1');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false); // Add loading state
@@ -111,11 +111,7 @@ const CalendarComparison = () => {
                 <div className="row">
                   <div className="col-md-6 mb-3">
                     <label className="form-label">Event Duration (minutes):</label>
-                    <select value={duration} onChange={(e) => setDuration(e.target.value)} className="form-control">
-                      {[...Array(23 * 60).keys()].map(n => (
-                        <option key={n + 1} value={n + 1}>{n + 1}</option>
-                      ))}
-                    </select>
+                    <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} className="form-control" placeholder="e.g., 180" />
                   </div>
                   <div className="col-md-6 mb-3">
                     <label className="form-label">Max Suggestions Per Day:</label>
