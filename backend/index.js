@@ -92,8 +92,10 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
 
       timeslotRanges.forEach(range => {
         const [startTime, endTime] = range;
-        const slotStart = moment.utc(day + 'T' + startTime); // Ensure UTC
-        const slotEnd = moment.utc(day + 'T' + endTime); // Ensure UTC
+        const localSlotStart = moment(day + 'T' + startTime); // Local time
+        const localSlotEnd = moment(day + 'T' + endTime); // Local time
+        const slotStart = moment.utc(localSlotStart); // Convert to UTC
+        const slotEnd = moment.utc(localSlotEnd); // Convert to UTC
 
         for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {
           const suggestionEnd = slot.clone().add(eventDuration, 'milliseconds');
