@@ -12,6 +12,11 @@ app.use(bodyParser.json());
 
 const upload = multer({ dest: 'uploads/' });
 
+// Example root route
+app.get('/', (req, res) => {
+  res.send('Welcome to the Timefinder Backend API');
+});
+
 app.post('/api/compare', upload.array('files'), (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
