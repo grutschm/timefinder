@@ -47,11 +47,13 @@ const CalendarComparison = () => {
     formData.append('maxSuggestions', maxSuggestions);
 
     try {
+      console.log("Submitting form with data:", formData);
       const response = await axios.post('https://timefinder-backend.azurewebsites.net/api/compare', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
+      console.log("Received response:", response.data);
       setResult(response.data);
     } catch (error) {
       console.error('Error comparing calendars', error);
@@ -148,9 +150,13 @@ const CalendarComparison = () => {
                     <li key={date} className="list-group-item">
                       <strong>{moment.utc(date).local().format('dddd, DD. MMMM')}</strong>
                       <ul>
-                        {times.map((time, index) => (
-                          <li key={index}>{moment.utc(time.start).local().format('dddd, DD. MMMM HH:mm')}</li> // Convert UTC to local time
-                        ))}
+                        {times.map((time, index) => {
+                          const localStart = moment.utc(time.start).local();
+                          console.log("Displaying time (UTC to Local) - Start:", time.start, "Local Start:", localStart.format('dddd, DD. MMMM HH:mm'));
+                          return (
+                            <li key={index}>{localStart.format('dddd, DD. MMMM HH:mm')}</li> // Convert UTC to local time
+                          );
+                        })}
                       </ul>
                     </li>
                   ))}

@@ -42,9 +42,13 @@ app.get('/', (req, res) => {
 // Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
+  console.log("Form input received - Start Date:", startDate, "End Date:", endDate, "Timeslots:", timeslots);
+
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
   const eventDuration = parseInt(duration, 10) * 60 * 1000;  // Convert minutes to milliseconds
+  console.log("Event Duration (milliseconds):", eventDuration);
+  
   const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
 
   // Parse calendar files
@@ -67,6 +71,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   events.forEach(event => {
     const eventStart = moment.utc(event.start); // Ensure UTC
     const eventEnd = moment.utc(event.end); // Ensure UTC
+    console.log("Parsed Event - Start:", eventStart.format(), "End:", eventEnd.format());
     const day = eventStart.format('YYYY-MM-DD');
 
     if (!busyTimes[day]) {
@@ -79,9 +84,11 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   // Check for common available slots
   const start = moment.utc(startDate); // Ensure UTC
   const end = moment.utc(endDate); // Ensure UTC
+  console.log("Processed Dates - Start Date (UTC):", start.format(), "End Date (UTC):", end.format());
+
   const availableTimes = {};
 
-  for (let m = moment.utc(start); m.isSameOrBefore(end); m.add(1, 'days')) {
+  for (let m = moment(start); m.isSameOrBefore(end); m.add(1, 'days')) {
     if (parsedDaysOfWeek[m.format('dddd')]) {
       const day = m.format('YYYY-MM-DD');
       if (!busyTimes[day]) {
@@ -94,11 +101,15 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
         const [startTime, endTime] = range;
         const localSlotStart = moment(day + 'T' + startTime); // Local time
         const localSlotEnd = moment(day + 'T' + endTime); // Local time
-        const slotStart = localSlotStart.utc(); // Convert to UTC
-        const slotEnd = localSlotEnd.utc(); // Convert to UTC
+        console.log("Local Timeslot - Start:", localSlotStart.format(), "End:", localSlotEnd.format());
+        
+        const slotStart = moment.utc(localSlotStart); // Convert to UTC
+        const slotEnd = moment.utc(localSlotEnd); // Convert to UTC
+        console.log("Converted Timeslot (UTC) - Start:", slotStart.format(), "End:", slotEnd.format());
 
         for (let slot = slotStart.clone(); slot.isBefore(slotEnd); slot.add(eventDuration, 'milliseconds')) {
           const suggestionEnd = slot.clone().add(eventDuration, 'milliseconds');
+          console.log("Evaluating Slot - Start:", slot.format(), "End:", suggestionEnd.format());
 
           // Ensure slotEnd does not exceed the timeslot end time
           if (suggestionEnd.isAfter(slotEnd)) break;
@@ -130,6 +141,7 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
     }
   }
 
+  console.log("Available Times:", availableTimes);
   res.send(availableTimes);
 });
 
