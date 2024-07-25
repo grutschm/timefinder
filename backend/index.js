@@ -42,8 +42,7 @@ app.get('/', (req, res) => {
 
 // Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
-  const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions } = req.body;
-  const timezone = req.body.timezone || 'UTC';  // Get the timezone from the request, default to 'UTC'
+  const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions, timezone } = req.body;
   console.log("Form input received - Start Date:", startDate, "End Date:", endDate, "Timeslots:", timeslots, "Timezone:", timezone);
 
   const parsedDaysOfWeek = JSON.parse(daysOfWeek);

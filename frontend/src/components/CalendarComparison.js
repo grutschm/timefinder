@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CalendarComparison.css';
-import moment from 'moment-timezone'; // Ensure moment-timezone is imported
+import moment from 'moment-timezone';
 
 const CalendarComparison = () => {
   const [files, setFiles] = useState([]);
