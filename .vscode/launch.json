@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Backend",
+        "skipFiles": ["<node_internals>/**"],
+        "program": "C:/repositories/timefinder/backend/index.js", // Adjust the path if necessary
+        "cwd": "C:/repositories/timefinder/backend",
+        "console": "integratedTerminal"
+      },
+      {
+        "name": "Launch Chrome against localhost",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:3000",
+        "webRoot": "C:/repositories/timefinder/frontend"
+      }
+    ]
+  }

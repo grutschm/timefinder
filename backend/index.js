@@ -12,7 +12,8 @@ const port = process.env.PORT || 5000;
 
 // Define allowed origins
 const allowedOrigins = [
-  'https://timefinder-frontend.azurestaticapps.net'
+  'http://localhost:3000',  // Allow local frontend during development
+  'https://timefinder-frontend.azurestaticapps.net'  // Allow production frontend
 ];
 
 const corsOptions = {

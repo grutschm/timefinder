@@ -51,7 +51,7 @@ const CalendarComparison = () => {
 
     try {
       console.log("Submitting form with data:", formData);
-      const response = await axios.post('https://timefinder-backend.azurewebsites.net/api/compare', formData, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/compare`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
