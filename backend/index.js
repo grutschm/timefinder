@@ -43,7 +43,6 @@ app.get('/', (req, res) => {
 
 // Existing routes
 app.post('/api/compare', upload.array('files'), (req, res) => {
-  return
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions, timezone } = req.body;
   console.log("Form input received - Start Date:", startDate, "End Date:", endDate, "Timeslots:", timeslots, "Timezone:", timezone);
 
