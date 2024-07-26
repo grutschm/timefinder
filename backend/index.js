@@ -50,17 +50,22 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
   const eventDuration = parseInt(duration, 10) * 60 * 1000;  // Convert minutes to milliseconds
   console.log("Event Duration (milliseconds):", eventDuration);
+
+  const start = moment.utc(startDate); // Ensure UTC
+  const end = moment.utc(endDate); // Ensure UTC
   
   const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
 
   // Parse calendar files
   const events = [];
+  const filterEnd = moment.utc(endDate).add(1, 'day') // Add 1 day to end date for filtering
   req.files.forEach(file => {
+    console.log("Parsing file:", file.originalname);
     const data = ical.parseFile(file.path);
     for (let k in data) {
       if (data.hasOwnProperty(k)) {
         const event = data[k];
-        if (event.type === 'VEVENT') {
+        if (event.type === 'VEVENT' && moment.utc(event.start) >= start && moment.utc(event.end) <= filterEnd) {
           events.push(event);
         }
       }
@@ -84,8 +89,6 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
   });
 
   // Check for common available slots
-  const start = moment.utc(startDate); // Ensure UTC
-  const end = moment.utc(endDate); // Ensure UTC
   console.log("Processed Dates - Start Date (UTC):", start.format(), "End Date (UTC):", end.format());
 
   const availableTimes = {};
