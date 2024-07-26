@@ -9,13 +9,13 @@ const CalendarComparison = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [daysOfWeek, setDaysOfWeek] = useState({
-    Monday: false,
-    Tuesday: false,
-    Wednesday: false,
-    Thursday: false,
-    Friday: false,
-    Saturday: false,
-    Sunday: false
+    Monday: true,
+    Tuesday: true,
+    Wednesday: true,
+    Thursday: true,
+    Friday: true,
+    Saturday: true,
+    Sunday: true
   });
   const [timeslots, setTimeslots] = useState('');
   const [duration, setDuration] = useState('180'); // Default to 3 hours (180 minutes)
