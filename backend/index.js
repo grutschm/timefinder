@@ -1,9 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const multer = require('multer');
-const ical = require('ical');
 const moment = require('moment');
-const momentTz = require('moment-timezone');  // Import moment-timezone
+const momentTz = require('moment-timezone');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -33,62 +31,54 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
-
-const upload = multer({ dest: 'uploads/' });
+app.use(bodyParser.urlencoded({ extended: true })); // Support form data
 
 // Example root route
 app.get('/', (req, res) => {
   res.send('Welcome to the Timefinder Backend API');
 });
 
-// Existing routes
-app.post('/api/compare', upload.array('files'), (req, res) => {
+// Updated compare endpoint to use busyTimes
+app.post('/api/compare', (req, res) => {
   const { startDate, endDate, daysOfWeek, timeslots, duration, maxSuggestions, timezone } = req.body;
-  console.log("Form input received - Start Date:", startDate, "End Date:", endDate, "Timeslots:", timeslots, "Timezone:", timezone);
+  let busyTimes;
+  try {
+    busyTimes = JSON.parse(req.body.busyTimes);
+  } catch (error) {
+    return res.status(400).json({ error: 'Invalid busyTimes format' });
+  }
 
-  const parsedDaysOfWeek = JSON.parse(daysOfWeek);
-  const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
-  const eventDuration = parseInt(duration, 10) * 60 * 1000;  // Convert minutes to milliseconds
-  console.log("Event Duration (milliseconds):", eventDuration);
+  // Log received data
+  console.log("Received Form Data:");
+  console.log("Start Date:", startDate);
+  console.log("End Date:", endDate);
+  console.log("Days of Week:", daysOfWeek);
+  console.log("Timeslots:", timeslots);
+  console.log("Duration:", duration);
+  console.log("Max Suggestions:", maxSuggestions);
+  console.log("Timezone:", timezone);
+  console.log("Busy Times:", busyTimes);
 
-  const start = moment.utc(startDate); // Ensure UTC
-  const end = moment.utc(endDate); // Ensure UTC
-  
-  const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
+  try {
+    const parsedDaysOfWeek = JSON.parse(daysOfWeek);
+    const timeslotRanges = timeslots.split(',').map(range => range.trim().split('-'));
+    const eventDuration = parseInt(duration, 10) * 60 * 1000;  // Convert minutes to milliseconds
+    const maxSuggestionsPerDay = parseInt(maxSuggestions, 10) || Infinity;
 
-  // Parse calendar files
-  const events = [];
-  const filterEnd = moment.utc(endDate).add(1, 'day') // Add 1 day to end date for filtering
-  req.files.forEach(file => {
-    console.log("Parsing file:", file.originalname);
-    const data = ical.parseFile(file.path);
-    for (let k in data) {
-      if (data.hasOwnProperty(k)) {
-        const event = data[k];
-        if (event.type === 'VEVENT' && moment.utc(event.start) >= start && moment.utc(event.end) <= filterEnd) {
-          events.push(event);
-        }
-      }
-    }
-  });
+    console.log("Parsed Days of Week:", parsedDaysOfWeek);
+    console.log("Timeslot Ranges:", timeslotRanges);
+    console.log("Event Duration (milliseconds):", eventDuration);
+    console.log("Max Suggestions Per Day:", maxSuggestionsPerDay);
 
-  // Create a map of busy times
-  const busyTimes = {};
+    // Ensure busyTimes is parsed correctly
+    const parsedBusyTimes = typeof busyTimes === 'string' ? JSON.parse(busyTimes) : busyTimes;
 
-  events.forEach(event => {
-    const eventStart = moment.utc(event.start); // Ensure UTC
-    const eventEnd = moment.utc(event.end); // Ensure UTC
-    console.log("Parsed Event - Start:", eventStart.format(), "End:", eventEnd.format());
-    const day = eventStart.format('YYYY-MM-DD');
+    console.log("Parsed Busy Times:", parsedBusyTimes);
 
-    if (!busyTimes[day]) {
-      busyTimes[day] = [];
-    }
-
-    busyTimes[day].push({ start: eventStart, end: eventEnd });
-  });
 
   // Check for common available slots
+  const start = moment.utc(startDate); // Ensure UTC
+  const end = moment.utc(endDate); // Ensure UTC
   console.log("Processed Dates - Start Date (UTC):", start.format(), "End Date (UTC):", end.format());
 
   const availableTimes = {};
@@ -146,8 +136,11 @@ app.post('/api/compare', upload.array('files'), (req, res) => {
     }
   }
 
-  console.log("Available Times:", availableTimes);
   res.send(availableTimes);
+} catch (error) {
+  console.error("Error processing form data:", error);
+  res.status(400).send({ error: "Invalid request data" });
+}
 });
 
 app.listen(port, () => {

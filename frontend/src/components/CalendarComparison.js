@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CalendarComparison.css';
-import moment from 'moment-timezone';
+import moment from 'moment';
+import momentTz from 'moment-timezone';
+import ICAL from 'ical.js';
 
 const CalendarComparison = () => {
   const [files, setFiles] = useState([]);
@@ -30,30 +32,35 @@ const CalendarComparison = () => {
   };
 
   const handleDayChange = (e) => {
-    const { name, checked } = e.target;
-    setDaysOfWeek({ ...daysOfWeek, [name]: checked });
+    setDaysOfWeek({
+      ...daysOfWeek,
+      [e.target.name]: e.target.checked,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Set loading state to true
-    const formData = new FormData();
-    Array.from(files).forEach((file) => {
-      formData.append('files', file);
-    });
-    formData.append('startDate', startDate);
-    formData.append('endDate', endDate);
-    formData.append('daysOfWeek', JSON.stringify(daysOfWeek));
-    formData.append('timeslots', timeslots);
-    formData.append('duration', duration);
-    formData.append('maxSuggestions', maxSuggestions);
-    formData.append('timezone', timezone); // Append timezone information
-
+  
+    const busyTimes = await parseCalendarFiles(files, startDate, endDate);
+  
+    const formData = {
+      startDate,
+      endDate,
+      daysOfWeek: JSON.stringify(daysOfWeek),
+      timeslots,
+      duration,
+      maxSuggestions,
+      timezone,
+      busyTimes: JSON.stringify(busyTimes)  // Convert busyTimes to JSON string
+    };
+  
+    console.log("Form Data:", formData);
+  
     try {
-      console.log("Submitting form with data:", formData);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/compare`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'application/json'
         }
       });
       console.log("Received response:", response.data);
@@ -64,7 +71,7 @@ const CalendarComparison = () => {
       setLoading(false); // Reset loading state
     }
   };
-
+  
   return (
     <div className="container mt-5">
       <div className="row">
@@ -174,3 +181,40 @@ const CalendarComparison = () => {
 };
 
 export default CalendarComparison;
+
+
+// parse calendar function
+const parseCalendarFiles = async (files, startDate, endDate) => {
+  const busyTimes = {};
+
+  const startMoment = moment(startDate);
+  const endMoment = moment(endDate).add(1, 'days'); // Add 1 day to include the end date
+
+  for (const file of files) {
+    const data = await file.text();
+    const jcalData = ICAL.parse(data);
+    const comp = new ICAL.Component(jcalData);
+    const vevents = comp.getAllSubcomponents('vevent');
+
+    vevents.forEach(event => {
+      const dtstart = event.getFirstPropertyValue('dtstart');
+      const dtend = event.getFirstPropertyValue('dtend');
+
+      if (dtstart && dtend) {
+        const eventStart = moment(dtstart.toJSDate());
+        const eventEnd = moment(dtend.toJSDate());
+
+        // Filter events within the specified date range
+        if (eventStart.isBetween(startMoment, endMoment, 'day', '[]') || eventEnd.isBetween(startMoment, endMoment, 'day', '[]')) {
+          const day = eventStart.format('YYYY-MM-DD');
+          if (!busyTimes[day]) {
+            busyTimes[day] = [];
+          }
+          busyTimes[day].push({ start: eventStart.toISOString(), end: eventEnd.toISOString() });
+        }
+      }
+    });
+  }
+
+  return busyTimes;
+};
