@@ -3,7 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CalendarComparison.css';
 import moment from 'moment';
-// import momentTz from 'moment-timezone';
+import momentTz from 'moment-timezone';
 import ICAL from 'ical.js';
 
 const CalendarComparison = () => {
@@ -25,7 +25,7 @@ const CalendarComparison = () => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false); // Add loading state
 
-  const timezone = moment.tz.guess(); // Detect user's local timezone
+  const timezone = momentTz.tz.guess(); // Detect user's local timezone using moment-timezone
 
   const handleFileChange = (e) => {
     setFiles(e.target.files);
