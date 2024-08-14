@@ -1,3 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Font size variables */
+:root {
+  --font-size-small: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;  /* 16px */
+  --font-size-large: 1.25rem;  /* 20px */
+  --font-size-heading: 1.5rem;  /* 24px */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}
+
+/* Set global font family */
+body {
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Define a modern color palette */
+:root {
+  --primary-color: #007BFF;  /* A vibrant blue */
+  --secondary-color: #6C757D;  /* A cool grey */
+  --background-color: #F8F9FA;  /* A light grey background */
+  --accent-color: #FFC107;  /* A warm accent color */
+  --text-color: #343A40;  /* Dark text color */
+  --muted-text-color: #6C757D;  /* Muted grey for secondary text */
+  --light-background-color: #FFFFFF;  /* White for cards and panels */
+  --border-color: #DEE2E6;  /* Light grey for borders */
+}
+
+/* Define spacing ranges */
+:root {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+
+/* Core App Layout */
 .App {
   text-align: center;
 }
@@ -13,26 +57,203 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* Header and Footer Styles */
+.app-header {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+.app-content {
+  padding: 20px;
+  background-color: var(--background-color);
+}
+
+.footer {
+  background-color: var(--secondary-color);
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.footer a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-color);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+h1 {
+  font-size: 2rem; /* 32px */
+}
+
+h2 {
+  font-size: 1.75rem; /* 28px */
+}
+
+h3 {
+  font-size: var(--font-size-heading); /* 24px */
+}
+
+h4 {
+  font-size: 1.25rem; /* 20px */
+}
+
+h5, h6 {
+  font-size: 1rem; /* 16px */
+  font-weight: var(--font-weight-medium);
+}
+
+/* Paragraphs */
+p {
+  font-size: var(--font-size-base);
+  margin-bottom: 1.5rem;
+}
+
+/* Small text */
+small {
+  font-size: var(--font-size-small);
+  color: var(--muted-text-color);
+}
+
+
+button, .btn-primary {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+}
+
+.form-label, .form-control {
+  font-size: var(--font-size-small);
+  color: var(--text-color);
+}
+
+input, select, textarea {
+  font-family: 'Roboto', sans-serif;
+  font-size: var(--font-size-base);
+}
+
+/* General container for main content */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* Spacing between sections */
+.section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+}
+
+/* Apply consistent padding to cards and panels */
+.card, .panel {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form element spacing */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Labels should have some margin for clarity */
+.form-label {
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+/* Inputs should be full width with padding */
+.form-control {
+  width: 100%;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Buttons should be well spaced */
+.form-buttons {
+  margin-top: var(--spacing-md);
+}
+
+button, .btn-primary {
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-right: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+p, ul, ol {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Increase spacing in lists */
+ul, ol {
+  padding-left: var(--spacing-md);
+}
+
+li {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Spacing around buttons and links */
+button, .btn-primary, .footer a {
+  margin: var(--spacing-sm) var(--spacing-md);
+}
+
+.footer a {
+  display: inline-block;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Flexbox grid for layouts */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.grid-item {
+  flex: 1 1 300px; /* Each item takes up a minimum of 300px */
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .grid {
+    flex-direction: column;
+  }
+
+  .form-control {
+    padding: var(--spacing-sm);
+  }
+
+  button, .btn-primary {
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
   }
 }
